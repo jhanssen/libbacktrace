@@ -397,28 +397,6 @@ struct elf_syminfo_data
   size_t count;
 };
 
-/* A view that works for either a file or memory.  */
-
-struct elf_view
-{
-  struct backtrace_view view;
-  int release; /* If non-zero, must call backtrace_release_view.  */
-};
-
-/* Information about PowerPC64 ELFv1 .opd section.  */
-
-struct elf_ppc64_opd_data
-{
-  /* Address of the .opd section.  */
-  b_elf_addr addr;
-  /* Section data.  */
-  const char *data;
-  /* Size of the .opd section.  */
-  size_t size;
-  /* Corresponding section view.  */
-  struct elf_view view;
-};
-
 /* Create a view of SIZE bytes from DESCRIPTOR/MEMORY at OFFSET.  */
 
 static int
@@ -557,7 +535,7 @@ elf_crc32_file (struct backtrace_state *state, int descriptor,
 /* A dummy callback function used when we can't find a symbol
    table.  */
 
-static void
+void
 elf_nosyms (struct backtrace_state *state ATTRIBUTE_UNUSED,
 	    uintptr_t addr ATTRIBUTE_UNUSED,
 	    backtrace_syminfo_callback callback ATTRIBUTE_UNUSED,
@@ -759,7 +737,7 @@ elf_add_syminfo_data (struct backtrace_state *state,
 
 /* Return the symbol name and value for an ADDR.  */
 
-static void
+void
 elf_syminfo (struct backtrace_state *state, uintptr_t addr,
 	     backtrace_syminfo_callback callback,
 	     backtrace_error_callback error_callback ATTRIBUTE_UNUSED,
@@ -6503,7 +6481,7 @@ backtrace_uncompress_lzma (struct backtrace_state *state,
    elf_add will need to be called on the descriptor again after
    base_address is determined.  */
 
-static int
+int
 elf_add (struct backtrace_state *state, const char *filename, int descriptor,
 	 const unsigned char *memory, size_t memory_size,
 	 struct libbacktrace_base_address base_address,

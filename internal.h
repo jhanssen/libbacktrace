@@ -339,6 +339,8 @@ struct dwarf_data;
  #include <sys/link.h>
 #endif
 
+#include "config.h"
+
 #define libbacktrace_using_fdpic() (1)
 
 struct libbacktrace_base_address
@@ -424,5 +426,55 @@ extern int backtrace_uncompress_lzma (struct backtrace_state *,
 				      backtrace_error_callback, void *data,
 				      unsigned char **uncompressed,
 				      size_t *uncompressed_size);
+
+#if BACKTRACE_ELF_SIZE == 32
+typedef uint32_t eb_elf_addr;
+#else
+typedef uint64_t eb_elf_addr;
+#endif
+
+/* A view that works for either a file or memory.  */
+
+struct elf_view
+{
+    struct backtrace_view view;
+    int release; /* If non-zero, must call backtrace_release_view.  */
+};
+
+/* Information about PowerPC64 ELFv1 .opd section.  */
+
+struct elf_ppc64_opd_data
+{
+    /* Address of the .opd section.  */
+    eb_elf_addr addr;
+    /* Section data.  */
+    const char *data;
+    /* Size of the .opd section.  */
+    size_t size;
+    /* Corresponding section view.  */
+    struct elf_view view;
+};
+
+extern int elf_add (struct backtrace_state *state, const char *filename, int descriptor,
+                    const unsigned char *memory, size_t memory_size,
+                    struct libbacktrace_base_address base_address,
+                    struct elf_ppc64_opd_data *caller_opd,
+                    backtrace_error_callback error_callback, void *data,
+                    fileline *fileline_fn, int *found_sym, int *found_dwarf,
+                    struct dwarf_data **fileline_entry, int exe, int debuginfo,
+                    const char *with_buildid_data, uint32_t with_buildid_size);
+
+extern void elf_syminfo (struct backtrace_state *state, uintptr_t addr,
+                         backtrace_syminfo_callback callback,
+                         backtrace_error_callback error_callback,
+                         void *data);
+
+extern void elf_nosyms (struct backtrace_state *state,
+                        uintptr_t addr,
+                        backtrace_syminfo_callback callback,
+                        backtrace_error_callback error_callback, void *data);
+
+extern int fileline_initialize (struct backtrace_state *state,
+                                backtrace_error_callback error_callback, void *data);
 
 #endif
