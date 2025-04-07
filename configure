@@ -12053,7 +12053,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 WARN_FLAGS=
 save_CFLAGS="$CFLAGS"
-for real_option in -W -Wall -Wwrite-strings -Wstrict-prototypes \
+for real_option in -O3 -W -Wall -Wwrite-strings -Wstrict-prototypes \
 			  -Wmissing-prototypes -Wold-style-definition \
 			  -Wmissing-format-attribute -Wcast-qual \
 			  -Wno-attributes -Wno-unknown-attributes \
